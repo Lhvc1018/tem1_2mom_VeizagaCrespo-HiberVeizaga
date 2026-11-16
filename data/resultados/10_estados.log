@@ -1,0 +1,54 @@
+!connect jdbc:hive2://localhost:10000/default '' [passwd stripped] 
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/hive/lib/log4j-slf4j-impl-2.6.2.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/hadoop-2.7.4/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Connecting to jdbc:hive2://localhost:10000/default
+Connected to: Apache Hive (version 2.3.2)
+Driver: Hive JDBC (version 2.3.2)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 2.3.2 by Apache Hive
+0: jdbc:hive2://localhost:10000/default> -- An??lisis complementario 11: cinco e stados con mayor y menor ganancia.
+0: jdbc:hive2://localhost:10000/default> WITH estados AS (
+. . . . . . . . . . . . . . . . . . . .>   SELECT state AS estado,
+. . . . . . . . . . . . . . . . . . . .>          ROUND(SUM(sales), 2) AS ventas ,
+. . . . . . . . . . . . . . . . . . . .>          ROUND(SUM(profit), 2) AS ganan cia
+. . . . . . . . . . . . . . . . . . . .>   FROM superstore_veizaga.ventas
+. . . . . . . . . . . . . . . . . . . .>   GROUP BY state
+. . . . . . . . . . . . . . . . . . . .> ), ranking AS (
+. . . . . . . . . . . . . . . . . . . .>   SELECT estado, ventas, ganancia,
+. . . . . . . . . . . . . . . . . . . .>          ROW_NUMBER() OVER (ORDER BY ga nancia DESC, estado) AS puesto_alto,
+. . . . . . . . . . . . . . . . . . . .>          ROW_NUMBER() OVER (ORDER BY ga nancia ASC, estado) AS puesto_bajo
+. . . . . . . . . . . . . . . . . . . .>   FROM estados
+. . . . . . . . . . . . . . . . . . . .> )
+. . . . . . . . . . . . . . . . . . . .> SELECT estado, ventas, ganancia, puesto _alto, puesto_bajo
+. . . . . . . . . . . . . . . . . . . .> FROM ranking
+. . . . . . . . . . . . . . . . . . . .> WHERE puesto_alto <= 5 OR puesto_bajo < = 5
+. . . . . . . . . . . . . . . . . . . .> ORDER BY ganancia DESC;
+going to print operations logs
+printed operations logs
+going to print operations logs
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+printed operations logs
+Getting log thread is interrupted, since query is done!
++-----------------+------------+------------+--------------+--------------+
+|     estado      |   ventas   |  ganancia  | puesto_alto  | puesto_bajo  |
++-----------------+------------+------------+--------------+--------------+
+| California      | 457687.63  | 76381.39   | 1            | 49           |
+| New York        | 310876.27  | 74038.55   | 2            | 48           |
+| Washington      | 138641.27  | 33402.65   | 3            | 47           |
+| Michigan        | 76269.61   | 24463.19   | 4            | 46           |
+| Virginia        | 70636.72   | 18597.95   | 5            | 45           |
+| North Carolina  | 55603.16   | -7490.91   | 45           | 5            |
+| Illinois        | 80166.1    | -12607.89  | 46           | 4            |
+| Pennsylvania    | 116511.91  | -15559.96  | 47           | 3            |
+| Ohio            | 78258.14   | -16971.38  | 48           | 2            |
+| Texas           | 170188.05  | -25729.36  | 49           | 1            |
++-----------------+------------+------------+--------------+--------------+
+10 rows selected (4.695 seconds)
+0: jdbc:hive2://localhost:10000/default> Closing: 0: jdbc:hive2://localhost:10000/default

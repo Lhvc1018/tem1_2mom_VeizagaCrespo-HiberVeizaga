@@ -1,0 +1,163 @@
+!connect jdbc:hive2://localhost:10000/default '' [passwd stripped] 
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/hive/lib/log4j-slf4j-impl-2.6.2.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/hadoop-2.7.4/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Connecting to jdbc:hive2://localhost:10000/default
+Connected to: Apache Hive (version 2.3.2)
+Driver: Hive JDBC (version 2.3.2)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 2.3.2 by Apache Hive
+0: jdbc:hive2://localhost:10000/default> SET hive.strict.checks.cartesian.produc t=false;
+going to print operations logs
+printed operations logs
+Getting log thread is interrupted, since query is done!
+No rows affected (0.035 seconds)
+0: jdbc:hive2://localhost:10000/default> DROP VIEW IF EXISTS superstore_veizaga. rfm_clientes;
+going to print operations logs
+printed operations logs
+Getting log thread is interrupted, since query is done!
+No rows affected (0.871 seconds)
+0: jdbc:hive2://localhost:10000/default> CREATE VIEW superstore_veizaga.rfm_clie ntes AS
+. . . . . . . . . . . . . . . . . . . .> WITH referencia AS (
+. . . . . . . . . . . . . . . . . . . .>   SELECT MAX(order_date) AS fecha_maxim a FROM superstore_veizaga.ventas
+. . . . . . . . . . . . . . . . . . . .> ), cliente AS (
+. . . . . . . . . . . . . . . . . . . .>   SELECT customer_id, MAX(customer_name ) AS customer_name,
+. . . . . . . . . . . . . . . . . . . .>          MAX(order_date) AS ultima_comp ra,
+. . . . . . . . . . . . . . . . . . . .>          COUNT(DISTINCT order_id) AS fr equency,
+. . . . . . . . . . . . . . . . . . . .>          SUM(sales) AS monetary
+. . . . . . . . . . . . . . . . . . . .>   FROM superstore_veizaga.ventas
+. . . . . . . . . . . . . . . . . . . .>   GROUP BY customer_id
+. . . . . . . . . . . . . . . . . . . .> ), medidas AS (
+. . . . . . . . . . . . . . . . . . . .>   SELECT c.*, DATEDIFF(r.fecha_maxima,  c.ultima_compra) AS recency
+. . . . . . . . . . . . . . . . . . . .>   FROM cliente c CROSS JOIN referencia  r
+. . . . . . . . . . . . . . . . . . . .> ), puntajes AS (
+. . . . . . . . . . . . . . . . . . . .>   SELECT medidas.*,
+. . . . . . . . . . . . . . . . . . . .>          NTILE(5) OVER (ORDER BY recenc y DESC) AS r_score,
+. . . . . . . . . . . . . . . . . . . .>          NTILE(5) OVER (ORDER BY freque ncy ASC) AS f_score,
+. . . . . . . . . . . . . . . . . . . .>          NTILE(5) OVER (ORDER BY moneta ry ASC) AS m_score
+. . . . . . . . . . . . . . . . . . . .>   FROM medidas
+. . . . . . . . . . . . . . . . . . . .> )
+. . . . . . . . . . . . . . . . . . . .> SELECT puntajes.*,
+. . . . . . . . . . . . . . . . . . . .>        CASE WHEN r_score >= 4 AND f_sco re >= 4 AND m_score >= 4 THEN 'Alto valor'
+. . . . . . . . . . . . . . . . . . . .>             WHEN r_score <= 2 AND (f_sc ore >= 3 OR m_score >= 3) THEN 'En riesgo'
+. . . . . . . . . . . . . . . . . . . .>             WHEN f_score >= 4 THEN 'Rec urrente'
+. . . . . . . . . . . . . . . . . . . .>             ELSE 'Otros' END AS segment o_rfm
+. . . . . . . . . . . . . . . . . . . .> FROM puntajes;
+going to print operations logs
+printed operations logs
+Getting log thread is interrupted, since query is done!
+No rows affected (0.155 seconds)
+0: jdbc:hive2://localhost:10000/default> 
+0: jdbc:hive2://localhost:10000/default> SELECT segmento_rfm, COUNT(*) AS client es,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(SUM(monetary), 2) AS venta s_acumuladas,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(AVG(recency), 2) AS recenc y_promedio
+. . . . . . . . . . . . . . . . . . . .> FROM superstore_veizaga.rfm_clientes
+. . . . . . . . . . . . . . . . . . . .> GROUP BY segmento_rfm ORDER BY ventas_a cumuladas DESC;
+going to print operations logs
+printed operations logs
+going to print operations logs
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/hive/lib/log4j-slf4j-impl-2.6.2.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/hadoop-2.7.4/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Execution log at: /tmp/root/root_20261116150030_601e7205-30e0-4e38-8faa-57b63120d9b3.log
+2026-11-16 15:00:34	Starting to launch local task to process map join;	maximum memory = 477626368
+printed operations logs
+going to print operations logs
+2026-11-16 15:00:34	Dump the side-table for tag: 1 with group count: 1 into file: file:/tmp/root/f418099c-35fe-4ca1-b5dd-6d9d7512ce8e/hive_2026-11-16_15-00-30_414_934884617069983274-9/-local-10011/HashTable-Stage-9/MapJoin-mapfile01--.hashtable
+2026-11-16 15:00:34	Uploaded 1 File to: file:/tmp/root/f418099c-35fe-4ca1-b5dd-6d9d7512ce8e/hive_2026-11-16_15-00-30_414_934884617069983274-9/-local-10011/HashTable-Stage-9/MapJoin-mapfile01--.hashtable (280 bytes)
+2026-11-16 15:00:34	End of local task; Time Taken: 0.092 sec.
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+printed operations logs
+Getting log thread is interrupted, since query is done!
++---------------+-----------+--------------------+-------------------+
+| segmento_rfm  | clientes  | ventas_acumuladas  | recency_promedio  |
++---------------+-----------+--------------------+-------------------+
+| Otros         | 360       | 696673.32          | 156.8             |
+| En riesgo     | 199       | 692584.35          | 255.86            |
+| Alto valor    | 105       | 553262.35          | 24.76             |
+| Recurrente    | 129       | 354680.83          | 49.99             |
++---------------+-----------+--------------------+-------------------+
+4 rows selected (10.988 seconds)
+0: jdbc:hive2://localhost:10000/default> 
+0: jdbc:hive2://localhost:10000/default> SELECT customer_id, customer_name, rece ncy, frequency,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(monetary, 2) AS monetary,  r_score, f_score, m_score, segmento_rfm
+. . . . . . . . . . . . . . . . . . . .> FROM superstore_veizaga.rfm_clientes
+. . . . . . . . . . . . . . . . . . . .> ORDER BY monetary DESC LIMIT 20;
+going to print operations logs
+printed operations logs
+going to print operations logs
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/hive/lib/log4j-slf4j-impl-2.6.2.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/hadoop-2.7.4/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Execution log at: /tmp/root/root_20261116150041_1fc81ab2-41fb-4cee-bfd3-2a8342457ee1.log
+2026-11-16 15:00:45	Starting to launch local task to process map join;	maximum memory = 477626368
+2026-11-16 15:00:45	Dump the side-table for tag: 1 with group count: 1 into file: file:/tmp/root/f418099c-35fe-4ca1-b5dd-6d9d7512ce8e/hive_2026-11-16_15-00-41_411_7085785862825247845-9/-local-10010/HashTable-Stage-8/MapJoin-mapfile21--.hashtable
+2026-11-16 15:00:45	Uploaded 1 File to: file:/tmp/root/f418099c-35fe-4ca1-b5dd-6d9d7512ce8e/hive_2026-11-16_15-00-41_411_7085785862825247845-9/-local-10010/HashTable-Stage-8/MapJoin-mapfile21--.hashtable (280 bytes)
+2026-11-16 15:00:45	End of local task; Time Taken: 0.091 sec.
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+printed operations logs
+Getting log thread is interrupted, since query is done!
++--------------+---------------------+----------+------------+-----------+----------+----------+----------+---------------+
+| customer_id  |    customer_name    | recency  | frequency  | monetary  | r_score  | f_score  | m_score  | segmento_rfm  |
++--------------+---------------------+----------+------------+-----------+----------+----------+----------+---------------+
+| SM-20320     | Sean Miller         | 79       | 5          | 25043.05  | 3        | 2        | 5        | Otros         |
+| TC-20980     | Tamara Chand        | 399      | 5          | 19052.22  | 1        | 2        | 5        | En riesgo     |
+| RB-19360     | Raymond Buch        | 96       | 6          | 15117.34  | 3        | 3        | 5        | Otros         |
+| TA-21385     | Tom Ashbrook        | 69       | 4          | 14595.62  | 3        | 1        | 5        | Otros         |
+| AB-10105     | Adrian Barton       | 41       | 10         | 14473.57  | 4        | 5        | 5        | Alto valor    |
+| KL-16645     | Ken Lonsdale        | 47       | 12         | 14175.23  | 4        | 5        | 5        | Alto valor    |
+| SC-20095     | Sanjit Chand        | 349      | 9          | 14142.33  | 1        | 5        | 5        | En riesgo     |
+| HL-15040     | Hunter Lopez        | 43       | 6          | 12873.3   | 4        | 3        | 5        | Otros         |
+| SE-20110     | Sanjit Engle        | 9        | 11         | 12209.44  | 5        | 5        | 5        | Alto valor    |
+| CC-12370     | Christopher Conant  | 43       | 5          | 12129.07  | 4        | 2        | 5        | Otros         |
+| TS-21370     | Todd Sumrall        | 36       | 6          | 11891.75  | 4        | 3        | 5        | Otros         |
+| GT-14710     | Greg Tran           | 36       | 11         | 11820.12  | 4        | 5        | 5        | Alto valor    |
+| BM-11140     | Becky Martin        | 307      | 4          | 11789.63  | 1        | 2        | 5        | En riesgo     |
+| SV-20365     | Seth Vernon         | 101      | 10         | 11470.95  | 3        | 5        | 5        | Recurrente    |
+| CJ-12010     | Caroline Jumper     | 189      | 8          | 11164.97  | 2        | 4        | 5        | En riesgo     |
+| CL-12565     | Clay Ludtke         | 284      | 12         | 10880.55  | 1        | 5        | 5        | En riesgo     |
+| ME-17320     | Maria Etezadi       | 42       | 10         | 10663.73  | 4        | 5        | 5        | Alto valor    |
+| KF-16285     | Karen Ferguson      | 97       | 7          | 10604.27  | 3        | 4        | 5        | Recurrente    |
+| BS-11365     | Bill Shonely        | 558      | 5          | 10501.65  | 1        | 2        | 5        | En riesgo     |
+| EH-13765     | Edward Hooks        | 135      | 12         | 10310.88  | 2        | 5        | 5        | En riesgo     |
++--------------+---------------------+----------+------------+-----------+----------+----------+----------+---------------+
+20 rows selected (9.792 seconds)
+0: jdbc:hive2://localhost:10000/default> Closing: 0: jdbc:hive2://localhost:10000/default

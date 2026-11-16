@@ -1,0 +1,57 @@
+!connect jdbc:hive2://localhost:10000/default '' [passwd stripped] 
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/hive/lib/log4j-slf4j-impl-2.6.2.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/hadoop-2.7.4/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Connecting to jdbc:hive2://localhost:10000/default
+Connected to: Apache Hive (version 2.3.2)
+Driver: Hive JDBC (version 2.3.2)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 2.3.2 by Apache Hive
+0: jdbc:hive2://localhost:10000/default> -- An??lisis complementario 12: evoluci ??n anual por categor??a.
+0: jdbc:hive2://localhost:10000/default> WITH anuales AS (
+. . . . . . . . . . . . . . . . . . . .>   SELECT category AS categoria,
+. . . . . . . . . . . . . . . . . . . .>          YEAR(order_date) AS anio,
+. . . . . . . . . . . . . . . . . . . .>          SUM(sales) AS ventas,
+. . . . . . . . . . . . . . . . . . . .>          SUM(profit) AS ganancia
+. . . . . . . . . . . . . . . . . . . .>   FROM superstore_veizaga.ventas
+. . . . . . . . . . . . . . . . . . . .>   GROUP BY category, YEAR(order_date)
+. . . . . . . . . . . . . . . . . . . .> ), comparacion AS (
+. . . . . . . . . . . . . . . . . . . .>   SELECT categoria, anio, ventas, ganan cia,
+. . . . . . . . . . . . . . . . . . . .>          LAG(ventas) OVER (PARTITION BY  categoria ORDER BY anio) AS ventas_previas
+. . . . . . . . . . . . . . . . . . . .>   FROM anuales
+. . . . . . . . . . . . . . . . . . . .> )
+. . . . . . . . . . . . . . . . . . . .> SELECT categoria, anio,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(ventas, 2) AS ventas,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(ganancia, 2) AS ganancia,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(100 * ganancia / ventas, 2 ) AS margen_pct,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(100 * (ventas - ventas_pre vias) / ventas_previas, 2) AS variacion_ventas_pct
+. . . . . . . . . . . . . . . . . . . .> FROM comparacion
+. . . . . . . . . . . . . . . . . . . .> ORDER BY categoria, anio;
+going to print operations logs
+printed operations logs
+going to print operations logs
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+printed operations logs
+going to print operations logs
+printed operations logs
+Getting log thread is interrupted, since query is done!
++------------------+-------+------------+-----------+-------------+-----------------------+
+|    categoria     | anio  |   ventas   | ganancia  | margen_pct  | variacion_ventas_pct  |
++------------------+-------+------------+-----------+-------------+-----------------------+
+| Furniture        | 2014  | 157192.85  | 5457.73   | 3.47        | NULL                  |
+| Furniture        | 2015  | 170518.24  | 3015.2    | 1.77        | 8.48                  |
+| Furniture        | 2016  | 198901.44  | 6959.95   | 3.5         | 16.65                 |
+| Furniture        | 2017  | 215387.27  | 3018.39   | 1.4         | 8.29                  |
+| Office Supplies  | 2014  | 151776.41  | 22593.42  | 14.89       | NULL                  |
+| Office Supplies  | 2015  | 137233.46  | 25099.53  | 18.29       | -9.58                 |
+| Office Supplies  | 2016  | 183939.98  | 35061.23  | 19.06       | 34.03                 |
+| Office Supplies  | 2017  | 246097.18  | 39736.62  | 16.15       | 33.79                 |
+| Technology       | 2014  | 175278.23  | 21492.83  | 12.26       | NULL                  |
+| Technology       | 2015  | 162780.81  | 33503.87  | 20.58       | -7.13                 |
+| Technology       | 2016  | 226364.18  | 39773.99  | 17.57       | 39.06                 |
+| Technology       | 2017  | 271730.81  | 50684.26  | 18.65       | 20.04                 |
++------------------+-------+------------+-----------+-------------+-----------------------+
+12 rows selected (2.445 seconds)
+0: jdbc:hive2://localhost:10000/default> Closing: 0: jdbc:hive2://localhost:10000/default

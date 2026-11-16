@@ -1,0 +1,87 @@
+!connect jdbc:hive2://localhost:10000/default '' [passwd stripped] 
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/hive/lib/log4j-slf4j-impl-2.6.2.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/hadoop-2.7.4/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Connecting to jdbc:hive2://localhost:10000/default
+Connected to: Apache Hive (version 2.3.2)
+Driver: Hive JDBC (version 2.3.2)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 2.3.2 by Apache Hive
+0: jdbc:hive2://localhost:10000/default> WITH anuales AS (
+. . . . . . . . . . . . . . . . . . . .>   SELECT region, year(order_date) AS an io,
+. . . . . . . . . . . . . . . . . . . .>          SUM(sales) AS ventas, SUM(prof it) AS ganancia
+. . . . . . . . . . . . . . . . . . . .>   FROM superstore_veizaga.ventas
+. . . . . . . . . . . . . . . . . . . .>   GROUP BY region, year(order_date)
+. . . . . . . . . . . . . . . . . . . .> ), comparacion AS (
+. . . . . . . . . . . . . . . . . . . .>   SELECT region, anio, ventas, ganancia ,
+. . . . . . . . . . . . . . . . . . . .>          LAG(ventas) OVER (PARTITION BY  region ORDER BY anio) AS ventas_anio_previo,
+. . . . . . . . . . . . . . . . . . . .>          LAG(ganancia) OVER (PARTITION  BY region ORDER BY anio) AS ganancia_anio_previo
+. . . . . . . . . . . . . . . . . . . .>   FROM anuales
+. . . . . . . . . . . . . . . . . . . .> )
+. . . . . . . . . . . . . . . . . . . .> SELECT region, anio, ROUND(ventas, 2) A S ventas,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(ganancia, 2) AS ganancia,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(100 * ganancia / ventas, 2 ) AS margen_pct,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(100 * (ventas - ventas_ani o_previo) / ventas_anio_previo, 2) AS variacion_ventas_pct,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(100 * (ganancia - ganancia _anio_previo) / ABS(ganancia_anio_previo), 2) AS variacion_ganancia_pct
+. . . . . . . . . . . . . . . . . . . .> FROM comparacion
+. . . . . . . . . . . . . . . . . . . .> ORDER BY region, anio;
+going to print operations logs
+printed operations logs
+going to print operations logs
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+printed operations logs
+going to print operations logs
+printed operations logs
+Getting log thread is interrupted, since query is done!
++----------+-------+------------+-----------+-------------+-----------------------+-------------------------+
+|  region  | anio  |   ventas   | ganancia  | margen_pct  | variacion_ventas_pct  | variacion_ganancia_pct  |
++----------+-------+------------+-----------+-------------+-----------------------+-------------------------+
+| Central  | 2014  | 103838.16  | 539.55    | 0.52        | NULL                  | NULL                    |
+| Central  | 2015  | 102874.22  | 11716.8   | 11.39       | -0.93                 | 2071.57                 |
+| Central  | 2016  | 147429.38  | 19899.16  | 13.5        | 43.31                 | 69.83                   |
+| Central  | 2017  | 147098.13  | 7550.84   | 5.13        | -0.22                 | -62.05                  |
+| East     | 2014  | 128680.46  | 17059.61  | 13.26       | NULL                  | NULL                    |
+| East     | 2015  | 156332.06  | 21091.01  | 13.49       | 21.49                 | 23.63                   |
+| East     | 2016  | 180685.82  | 20141.6   | 11.15       | 15.58                 | -4.5                    |
+| East     | 2017  | 213082.9   | 33230.56  | 15.6        | 17.93                 | 64.98                   |
+| South    | 2014  | 103845.84  | 11879.12  | 11.44       | NULL                  | NULL                    |
+| South    | 2015  | 71359.98   | 8318.59   | 11.66       | -31.28                | -29.97                  |
+| South    | 2016  | 93610.22   | 17702.81  | 18.91       | 31.18                 | 112.81                  |
+| South    | 2017  | 122905.86  | 8848.91   | 7.2         | 31.3                  | -50.01                  |
+| West     | 2014  | 147883.03  | 20065.69  | 13.57       | NULL                  | NULL                    |
+| West     | 2015  | 139966.25  | 20492.19  | 14.64       | -5.35                 | 2.13                    |
+| West     | 2016  | 187480.18  | 24051.61  | 12.83       | 33.95                 | 17.37                   |
+| West     | 2017  | 250128.37  | 43808.96  | 17.51       | 33.42                 | 82.15                   |
++----------+-------+------------+-----------+-------------+-----------------------+-------------------------+
+16 rows selected (2.612 seconds)
+0: jdbc:hive2://localhost:10000/default> 
+0: jdbc:hive2://localhost:10000/default> WITH region_total AS (
+. . . . . . . . . . . . . . . . . . . .>   SELECT region, SUM(sales) AS ventas,  SUM(profit) AS ganancia
+. . . . . . . . . . . . . . . . . . . .>   FROM superstore_veizaga.ventas GROUP  BY region
+. . . . . . . . . . . . . . . . . . . .> )
+. . . . . . . . . . . . . . . . . . . .> SELECT region, ROUND(ventas, 2) AS vent as, ROUND(ganancia, 2) AS ganancia,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(100 * ganancia / ventas, 2 ) AS margen_pct,
+. . . . . . . . . . . . . . . . . . . .>        RANK() OVER (ORDER BY ganancia D ESC) AS puesto_ganancia
+. . . . . . . . . . . . . . . . . . . .> FROM region_total ORDER BY puesto_ganan cia;
+going to print operations logs
+printed operations logs
+going to print operations logs
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+printed operations logs
+Getting log thread is interrupted, since query is done!
++----------+------------+------------+-------------+------------------+
+|  region  |   ventas   |  ganancia  | margen_pct  | puesto_ganancia  |
++----------+------------+------------+-------------+------------------+
+| West     | 725457.82  | 108418.45  | 14.94       | 1                |
+| East     | 678781.24  | 91522.78   | 13.48       | 2                |
+| South    | 391721.91  | 46749.43   | 11.93       | 3                |
+| Central  | 501239.89  | 39706.36   | 7.92        | 4                |
++----------+------------+------------+-------------+------------------+
+4 rows selected (3.509 seconds)
+0: jdbc:hive2://localhost:10000/default> Closing: 0: jdbc:hive2://localhost:10000/default

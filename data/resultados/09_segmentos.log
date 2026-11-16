@@ -1,0 +1,38 @@
+!connect jdbc:hive2://localhost:10000/default '' [passwd stripped] 
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/hive/lib/log4j-slf4j-impl-2.6.2.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/hadoop-2.7.4/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Connecting to jdbc:hive2://localhost:10000/default
+Connected to: Apache Hive (version 2.3.2)
+Driver: Hive JDBC (version 2.3.2)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 2.3.2 by Apache Hive
+0: jdbc:hive2://localhost:10000/default> -- An??lisis complementario 10: rentabi lidad por segmento comercial.
+0: jdbc:hive2://localhost:10000/default> SELECT segment AS segmento,
+. . . . . . . . . . . . . . . . . . . .>        COUNT(*) AS lineas,
+. . . . . . . . . . . . . . . . . . . .>        COUNT(DISTINCT customer_id) AS c lientes,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(SUM(sales), 2) AS ventas,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(SUM(profit), 2) AS gananci a,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(100 * SUM(profit) / SUM(sa les), 2) AS margen_pct
+. . . . . . . . . . . . . . . . . . . .> FROM superstore_veizaga.ventas
+. . . . . . . . . . . . . . . . . . . .> GROUP BY segment
+. . . . . . . . . . . . . . . . . . . .> ORDER BY ganancia DESC;
+going to print operations logs
+printed operations logs
+going to print operations logs
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+printed operations logs
+going to print operations logs
+printed operations logs
+Getting log thread is interrupted, since query is done!
++--------------+---------+-----------+-------------+------------+-------------+
+|   segmento   | lineas  | clientes  |   ventas    |  ganancia  | margen_pct  |
++--------------+---------+-----------+-------------+------------+-------------+
+| Consumer     | 5191    | 409       | 1161401.34  | 134119.21  | 11.55       |
+| Corporate    | 3020    | 236       | 706146.37   | 91979.13   | 13.03       |
+| Home Office  | 1783    | 148       | 429653.15   | 60298.68   | 14.03       |
++--------------+---------+-----------+-------------+------------+-------------+
+3 rows selected (2.444 seconds)
+0: jdbc:hive2://localhost:10000/default> Closing: 0: jdbc:hive2://localhost:10000/default

@@ -1,0 +1,70 @@
+!connect jdbc:hive2://localhost:10000/default '' [passwd stripped] 
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/hive/lib/log4j-slf4j-impl-2.6.2.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/hadoop-2.7.4/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Connecting to jdbc:hive2://localhost:10000/default
+Connected to: Apache Hive (version 2.3.2)
+Driver: Hive JDBC (version 2.3.2)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 2.3.2 by Apache Hive
+0: jdbc:hive2://localhost:10000/default> WITH clasificados AS (
+. . . . . . . . . . . . . . . . . . . .>   SELECT category, sub_category, sales,  profit, discount,
+. . . . . . . . . . . . . . . . . . . .>          CASE WHEN discount = 0 THEN 'S in descuento'
+. . . . . . . . . . . . . . . . . . . .>               WHEN discount <= 0.2 THEN  'Bajo'
+. . . . . . . . . . . . . . . . . . . .>               WHEN discount <= 0.5 THEN  'Medio'
+. . . . . . . . . . . . . . . . . . . .>               ELSE 'Alto' END AS rango_ descuento
+. . . . . . . . . . . . . . . . . . . .>   FROM superstore_veizaga.ventas
+. . . . . . . . . . . . . . . . . . . .> )
+. . . . . . . . . . . . . . . . . . . .> SELECT rango_descuento, COUNT(*) AS reg istros,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(SUM(sales), 2) AS ventas,  ROUND(SUM(profit), 2) AS ganancia,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(100 * SUM(profit) / SUM(sa les), 2) AS margen_pct,
+. . . . . . . . . . . . . . . . . . . .>        SUM(CASE WHEN profit <= 0 THEN 1  ELSE 0 END) AS no_rentables,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(100 * SUM(CASE WHEN profit  <= 0 THEN 1 ELSE 0 END) / COUNT(*), 2) AS no_rentables_pct,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(AVG(discount), 3) AS descu ento_promedio
+. . . . . . . . . . . . . . . . . . . .> FROM clasificados GROUP BY rango_descue nto
+. . . . . . . . . . . . . . . . . . . .> ORDER BY CASE rango_descuento WHEN 'Sin  descuento' THEN 1 WHEN 'Bajo' THEN 2 WHEN 'Medio' THEN 3 ELSE 4 END;
+going to print operations logs
+printed operations logs
+going to print operations logs
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+printed operations logs
+going to print operations logs
+printed operations logs
+Getting log thread is interrupted, since query is done!
++------------------+------------+-------------+------------+-------------+---------------+-------------------+---------------------+
+| rango_descuento  | registros  |   ventas    |  ganancia  | margen_pct  | no_rentables  | no_rentables_pct  | descuento_promedio  |
++------------------+------------+-------------+------------+-------------+---------------+-------------------+---------------------+
+| Sin descuento    | 4798       | 1087908.47  | 320987.6   | 29.51       | 30            | 0.63              | 0.0                 |
+| Bajo             | 3803       | 846522.24   | 100785.47  | 11.91       | 545           | 14.33             | 0.197               |
+| Medio            | 537        | 298541.41   | -58817.0   | -19.7       | 505           | 94.04             | 0.367               |
+| Alto             | 856        | 64228.74    | -76559.05  | -119.2      | 856           | 100.0             | 0.719               |
+4 rows selected (2.472 seconds)
++------------------+------------+-------------+------------+-------------+---------------+-------------------+---------------------+
+0: jdbc:hive2://localhost:10000/default> 
+0: jdbc:hive2://localhost:10000/default> SELECT category, sub_category, COUNT(*)  AS registros,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(SUM(profit), 2) AS gananci a,
+. . . . . . . . . . . . . . . . . . . .>        SUM(CASE WHEN profit <= 0 THEN 1  ELSE 0 END) AS no_rentables,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(100 * SUM(CASE WHEN profit  <= 0 THEN 1 ELSE 0 END) / COUNT(*), 2) AS no_rentables_pct
+. . . . . . . . . . . . . . . . . . . .> FROM superstore_veizaga.ventas WHERE di scount > 0.5
+. . . . . . . . . . . . . . . . . . . .> GROUP BY category, sub_category ORDER B Y ganancia ASC;
+going to print operations logs
+printed operations logs
+going to print operations logs
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+printed operations logs
+going to print operations logs
+printed operations logs
+Getting log thread is interrupted, since query is done!
++------------------+---------------+------------+------------+---------------+-------------------+
+|     category     | sub_category  | registros  |  ganancia  | no_rentables  | no_rentables_pct  |
++------------------+---------------+------------+------------+---------------+-------------------+
+| Office Supplies  | Binders       | 613        | -38510.5   | 613           | 100.0             |
+| Technology       | Machines      | 23         | -19579.32  | 23            | 100.0             |
+| Office Supplies  | Appliances    | 67         | -8629.64   | 67            | 100.0             |
+| Furniture        | Furnishings   | 138        | -5944.66   | 138           | 100.0             |
+| Furniture        | Bookcases     | 15         | -3894.94   | 15            | 100.0             |
++------------------+---------------+------------+------------+---------------+-------------------+
+5 rows selected (2.32 seconds)
+0: jdbc:hive2://localhost:10000/default> Closing: 0: jdbc:hive2://localhost:10000/default

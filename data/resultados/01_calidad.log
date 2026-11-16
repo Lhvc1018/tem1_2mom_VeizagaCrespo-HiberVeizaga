@@ -1,0 +1,103 @@
+!connect jdbc:hive2://localhost:10000/default '' [passwd stripped] 
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/hive/lib/log4j-slf4j-impl-2.6.2.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/hadoop-2.7.4/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Connecting to jdbc:hive2://localhost:10000/default
+Connected to: Apache Hive (version 2.3.2)
+Driver: Hive JDBC (version 2.3.2)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 2.3.2 by Apache Hive
+0: jdbc:hive2://localhost:10000/default> -- Resumen de calidad de la tabla final .
+0: jdbc:hive2://localhost:10000/default> SELECT
+. . . . . . . . . . . . . . . . . . . .>   COUNT(*) AS filas,
+. . . . . . . . . . . . . . . . . . . .>   COUNT(*) - COUNT(DISTINCT row_id) AS  row_id_duplicados,
+. . . . . . . . . . . . . . . . . . . .>   COUNT(DISTINCT order_id) AS ordenes_u nicas,
+. . . . . . . . . . . . . . . . . . . .>   COUNT(DISTINCT customer_id) AS client es_unicos,
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN order_date IS NULL THEN  1 ELSE 0 END) AS fechas_pedido_invalidas,
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN ship_date IS NULL THEN  1 ELSE 0 END) AS fechas_envio_invalidas,
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN sales <= 0 THEN 1 ELSE  0 END) AS ventas_no_positivas,
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN discount < 0 OR discoun t > 1 THEN 1 ELSE 0 END) AS descuentos_fuera_rango,
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN ship_date < order_date  THEN 1 ELSE 0 END) AS envios_antes_pedido,
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN sales IS NULL OR profit  IS NULL OR quantity IS NULL THEN 1 ELSE 0 END) AS nulos_numericos
+. . . . . . . . . . . . . . . . . . . .> FROM superstore_veizaga.ventas;
+going to print operations logs
+printed operations logs
+going to print operations logs
+printed operations logs
+going to print operations logs
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+printed operations logs
+Getting log thread is interrupted, since query is done!
++--------+--------------------+-----------------+------------------+--------------------------+-------------------------+----------------------+-------------------------+----------------------+------------------+
+| filas  | row_id_duplicados  | ordenes_unicas  | clientes_unicos  | fechas_pedido_invalidas  | fechas_envio_invalidas  | ventas_no_positivas  | descuentos_fuera_rango  | envios_antes_pedido  | nulos_numericos  |
++--------+--------------------+-----------------+------------------+--------------------------+-------------------------+----------------------+-------------------------+----------------------+------------------+
+| 9994   | 0                  | 5009            | 793              | 0                        | 0                       | 0                    | 0                       | 0                    | 0                |
++--------+--------------------+-----------------+------------------+--------------------------+-------------------------+----------------------+-------------------------+----------------------+------------------+
+1 row selected (3.345 seconds)
+0: jdbc:hive2://localhost:10000/default> 
+0: jdbc:hive2://localhost:10000/default> -- Una fila con cualquier columna nula;  todas las 21 columnas est??n incluidas.
+0: jdbc:hive2://localhost:10000/default> SELECT COUNT(*) AS filas_con_algun_null 
+. . . . . . . . . . . . . . . . . . . .> FROM superstore_veizaga.ventas
+. . . . . . . . . . . . . . . . . . . .> WHERE row_id IS NULL OR order_id IS NUL L OR order_date IS NULL OR ship_date IS NULL
+. . . . . . . . . . . . . . . . . . . .>    OR ship_mode IS NULL OR customer_id  IS NULL OR customer_name IS NULL
+. . . . . . . . . . . . . . . . . . . .>    OR segment IS NULL OR country IS NUL L OR city IS NULL OR state IS NULL
+. . . . . . . . . . . . . . . . . . . .>    OR postal_code IS NULL OR region IS  NULL OR product_id IS NULL
+. . . . . . . . . . . . . . . . . . . .>    OR category IS NULL OR sub_category  IS NULL OR product_name IS NULL
+. . . . . . . . . . . . . . . . . . . .>    OR sales IS NULL OR quantity IS NULL  OR discount IS NULL OR profit IS NULL;
+going to print operations logs
+printed operations logs
+going to print operations logs
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+printed operations logs
+Getting log thread is interrupted, since query is done!
++-----------------------+
+| filas_con_algun_null  |
++-----------------------+
+| 0                     |
++-----------------------+
+1 row selected (1.338 seconds)
+0: jdbc:hive2://localhost:10000/default> 
+0: jdbc:hive2://localhost:10000/default> -- Revisi??n de fechas y n??meros en el  CSV antes del CAST.
+0: jdbc:hive2://localhost:10000/default> SELECT
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN unix_timestamp(order_da te, 'M/d/yyyy') IS NULL THEN 1 ELSE 0 END) AS pedido_invalido_csv,
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN unix_timestamp(ship_dat e, 'M/d/yyyy') IS NULL THEN 1 ELSE 0 END) AS envio_invalido_csv,
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN CAST(sales AS DOUBLE) I S NULL THEN 1 ELSE 0 END) AS venta_invalida_csv,
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN CAST(discount AS DOUBLE ) IS NULL THEN 1 ELSE 0 END) AS descuento_invalido_csv,
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN CAST(profit AS DOUBLE)  IS NULL THEN 1 ELSE 0 END) AS ganancia_invalida_csv
+. . . . . . . . . . . . . . . . . . . .> FROM superstore_veizaga.superstore_csv; 
+going to print operations logs
+printed operations logs
+going to print operations logs
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+printed operations logs
+Getting log thread is interrupted, since query is done!
++----------------------+---------------------+---------------------+-------------------------+------------------------+
+| pedido_invalido_csv  | envio_invalido_csv  | venta_invalida_csv  | descuento_invalido_csv  | ganancia_invalida_csv  |
++----------------------+---------------------+---------------------+-------------------------+------------------------+
+| 0                    | 0                   | 0                   | 0                       | 0                      |
++----------------------+---------------------+---------------------+-------------------------+------------------------+
+1 row selected (1.28 seconds)
+0: jdbc:hive2://localhost:10000/default> 
+0: jdbc:hive2://localhost:10000/default> -- Campos opcionales con valores vac??o s.
+0: jdbc:hive2://localhost:10000/default> SELECT
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN postal_code IS NULL OR  trim(postal_code) = '' THEN 1 ELSE 0 END) AS postal_vacio,
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN order_id IS NULL OR tri m(order_id) = '' THEN 1 ELSE 0 END) AS orden_vacia,
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN customer_id IS NULL OR  trim(customer_id) = '' THEN 1 ELSE 0 END) AS cliente_vacio,
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN product_id IS NULL OR t rim(product_id) = '' THEN 1 ELSE 0 END) AS producto_vacio,
+. . . . . . . . . . . . . . . . . . . .>   SUM(CASE WHEN region IS NULL OR trim( region) = '' THEN 1 ELSE 0 END) AS region_vacia
+. . . . . . . . . . . . . . . . . . . .> FROM superstore_veizaga.ventas;
+going to print operations logs
+printed operations logs
+going to print operations logs
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+printed operations logs
+Getting log thread is interrupted, since query is done!
++---------------+--------------+----------------+-----------------+---------------+
+| postal_vacio  | orden_vacia  | cliente_vacio  | producto_vacio  | region_vacia  |
++---------------+--------------+----------------+-----------------+---------------+
+| 0             | 0            | 0              | 0               | 0             |
++---------------+--------------+----------------+-----------------+---------------+
+1 row selected (1.222 seconds)
+0: jdbc:hive2://localhost:10000/default> Closing: 0: jdbc:hive2://localhost:10000/default

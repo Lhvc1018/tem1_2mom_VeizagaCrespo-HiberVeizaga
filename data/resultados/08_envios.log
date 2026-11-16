@@ -1,0 +1,39 @@
+!connect jdbc:hive2://localhost:10000/default '' [passwd stripped] 
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/opt/hive/lib/log4j-slf4j-impl-2.6.2.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/opt/hadoop-2.7.4/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Connecting to jdbc:hive2://localhost:10000/default
+Connected to: Apache Hive (version 2.3.2)
+Driver: Hive JDBC (version 2.3.2)
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 2.3.2 by Apache Hive
+0: jdbc:hive2://localhost:10000/default> -- An??lisis complementario 9: tiempos  de env??o por modalidad.
+0: jdbc:hive2://localhost:10000/default> SELECT ship_mode AS modalidad,
+. . . . . . . . . . . . . . . . . . . .>        COUNT(*) AS lineas,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(AVG(DATEDIFF(ship_date, or der_date)), 2) AS dias_promedio,
+. . . . . . . . . . . . . . . . . . . .>        MIN(DATEDIFF(ship_date, order_da te)) AS dias_minimos,
+. . . . . . . . . . . . . . . . . . . .>        MAX(DATEDIFF(ship_date, order_da te)) AS dias_maximos,
+. . . . . . . . . . . . . . . . . . . .>        ROUND(SUM(sales), 2) AS ventas
+. . . . . . . . . . . . . . . . . . . .> FROM superstore_veizaga.ventas
+. . . . . . . . . . . . . . . . . . . .> GROUP BY ship_mode
+. . . . . . . . . . . . . . . . . . . .> ORDER BY dias_promedio;
+going to print operations logs
+printed operations logs
+going to print operations logs
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+printed operations logs
+going to print operations logs
+printed operations logs
+Getting log thread is interrupted, since query is done!
++-----------------+---------+----------------+---------------+---------------+-------------+
+|    modalidad    | lineas  | dias_promedio  | dias_minimos  | dias_maximos  |   ventas    |
++-----------------+---------+----------------+---------------+---------------+-------------+
+| Same Day        | 543     | 0.04           | 0             | 1             | 128363.13   |
+| First Class     | 1538    | 2.18           | 1             | 4             | 351428.42   |
+| Second Class    | 1945    | 3.24           | 1             | 5             | 459193.57   |
+| Standard Class  | 5968    | 5.01           | 3             | 7             | 1358215.74  |
++-----------------+---------+----------------+---------------+---------------+-------------+
+4 rows selected (2.438 seconds)
+0: jdbc:hive2://localhost:10000/default> Closing: 0: jdbc:hive2://localhost:10000/default
