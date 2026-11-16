@@ -1,6 +1,6 @@
 # Sample Superstore en Apache Hive
 
-Hiber Veizaga Crespo.
+Hiber Leandro Veizaga Crespo
 
 ## Objetivo
 
@@ -30,7 +30,3 @@ cmd\consultas.cmd
 - Evidencias de CMD: `evidencias/`.
 - Optimización: `docs/optimizacion.md`.
 - Informe Word: `EvidenciasExamen2mo.docx`.
-
-## Conclusión
-
-West lideró la ganancia regional. Los 856 registros con descuento superior al 50 % registraron pérdidas.

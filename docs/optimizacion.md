@@ -1,21 +1,21 @@
 # Análisis de optimización
 
-Este análisis cubre las ocho preguntas desarrolladas y los cuatro análisis complementarios.
+Revisé las ocho preguntas del examen y las cuatro consultas adicionales.
 
 ## Almacenamiento
 
-El CSV se cargó primero como texto con OpenCSVSerde para conservar campos entrecomillados y permitir la auditoría de conversiones. La tabla analítica usa ORC y tipos `DATE`, `INT` y `DOUBLE`. ORC permite lecturas de columnas concretas en consultas agregadas.
+Primero cargué el CSV como texto con OpenCSVSerde. Así conservé los campos entrecomillados y pude revisar las conversiones. La tabla final usa ORC y tipos `DATE`, `INT` y `DOUBLE`. ORC permite leer solo las columnas que necesita cada consulta.
 
 ## Modelo
 
-La tabla contiene 9.994 filas. Particionar por cuatro años o cuatro regiones produciría particiones pequeñas y aumentaría la administración sin una ventaja clara para este volumen. Se mantuvo una tabla ORC sin particiones.
+La tabla tiene 9.994 filas. Si la dividía por los cuatro años o las cuatro regiones, cada partición quedaba pequeña. Por eso dejé la tabla ORC sin particiones.
 
 ## Consultas
 
-Las agregaciones se realizan antes de las funciones de ventana para reducir las filas procesadas por `LAG()`, `RANK()` y sumas acumuladas. RFM calcula una fila por cliente; Pareto, una fila por producto. Las listas de inspección usan `LIMIT`, mientras que los resúmenes completos conservan todos los grupos.
+Primero sumé los datos por grupo y después usé `LAG()`, `RANK()` y las sumas acumuladas. Así esas funciones trabajan con menos filas. RFM usa una fila por cliente y Pareto una por producto. Usé `LIMIT` para mostrar ejemplos, pero los resúmenes incluyen todos los grupos.
 
-La tabla ORC evita volver a analizar el CSV original en cada pregunta. Los datos originales permanecen en una tabla de carga para repetir la auditoría. En Hive 2.3.2, la ejecución MapReduce tiene un costo fijo apreciable; por ello se evita dividir innecesariamente una métrica en múltiples trabajos.
+Las consultas leen la tabla ORC sin volver a procesar el CSV. Dejé la tabla de carga para repetir la revisión del archivo original. En Hive 2.3.2, cada trabajo MapReduce tarda un tiempo en arrancar. Por eso evité dividir una consulta en trabajos innecesarios.
 
 ## Comprobaciones
 
-La consulta de calidad confirmó 9.994 filas, ninguna conversión inválida y ningún identificador de fila duplicado. Las consultas RFM y Pareto usan vistas lógicas para reutilizar definiciones; las vistas no duplican físicamente los datos.
+La consulta de calidad contó 9.994 filas sin conversiones inválidas ni identificadores de fila duplicados. RFM y Pareto usan vistas para repetir consultas sin copiar los datos.

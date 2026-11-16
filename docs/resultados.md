@@ -1,6 +1,6 @@
 # Resultados de las doce consultas
 
-El examen explica ocho preguntas. Las preguntas 9 a 12 son análisis adicionales para completar los doce scripts solicitados.
+El enunciado desarrolla ocho preguntas. Añadí cuatro consultas para completar los doce scripts solicitados.
 
 Los importes vienen del CSV Sample Superstore. El archivo no indica moneda; por eso muestro las cifras sin símbolo y con dos decimales.
 
