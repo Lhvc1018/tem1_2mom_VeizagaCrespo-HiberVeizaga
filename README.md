@@ -29,7 +29,7 @@ cmd\consultas.cmd
 - Resultados y conclusiones: `docs/resultados.md`.
 - Evidencias de CMD: `evidencias/`.
 - Optimización: `docs/optimizacion.md`.
-- Informe Word: `EvidenciasExamen.docx`.
+- Informe Word: `EvidenciasExamen2mo.docx`.
 
 ## Conclusión
 

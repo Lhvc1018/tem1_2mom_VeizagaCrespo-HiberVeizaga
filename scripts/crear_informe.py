@@ -9,7 +9,7 @@ from docx.shared import Inches, Pt
 
 
 root = Path(__file__).resolve().parent.parent
-output = root / "EvidenciasExamen.docx"
+output = root / "InformeGenerado.docx"
 results = (root / "docs" / "resultados.md").read_text(encoding="utf-8")
 sections = re.split(r"(?=^## Pregunta \d+\.)", results, flags=re.M)[1:]
 assert len(sections) == 12
