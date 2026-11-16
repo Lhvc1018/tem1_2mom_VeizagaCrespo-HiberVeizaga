@@ -111,21 +111,8 @@ def code_block(sql):
 
 paragraph("Análisis de ventas con Apache Hive", bold=True, after=12)
 paragraph("Hiber Veizaga Crespo")
-paragraph("Sample Superstore")
-paragraph("Repositorio: https://github.com/Lhvc1018/tem1_2mom_VeizagaCrespo-HiberVeizaga")
-paragraph(
-    "Se cargaron 9.994 líneas de venta. El informe resuelve las ocho preguntas desarrolladas "
-    "y presenta cuatro análisis complementarios."
-)
-paragraph("Datos y ejecución", bold=True, before=8, keep=True)
-paragraph("Fuente: https://www.kaggle.com/datasets/vivek468/superstore-dataset-final")
-paragraph("La carga usa OpenCSVSerde y una tabla ORC. Las consultas y capturas se ejecutaron en CMD con Beeline.")
-paragraph("Hallazgos principales", bold=True, before=8, keep=True)
-paragraph("West tuvo la mayor ganancia regional; Central, la menor.")
-paragraph("Los 856 registros con descuento superior al 50 % registraron pérdidas.")
-paragraph("414 productos concentran el 80 % de las ventas; 340, el 80 % de las ganancias positivas.")
 
-paragraph("Diccionario de datos", bold=True, keep=True, page_before=True)
+paragraph("Diccionario de datos", bold=True, keep=True, before=8)
 paragraph("El CSV original contiene 21 columnas. Las fechas de origen usan el formato mes/día/año.")
 dictionary = (root / "docs" / "diccionario_datos.md").read_text(encoding="utf-8")
 rows = [line.strip().split("|")[1:-1] for line in dictionary.splitlines() if line.startswith("|")]
