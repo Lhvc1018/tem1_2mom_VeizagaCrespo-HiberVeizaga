@@ -132,7 +132,7 @@ Los importes proceden del CSV Sample Superstore. La unidad monetaria no aparece 
 
 **Conclusión.** Standard Class es la modalidad más usada y la de mayor espera media.
 
-## Pregunta 10. Rentabilidad por segmento comercial (complementaria)
+## Pregunta 10. Segmentos comerciales
 
 **Estrategia.** Se agruparon líneas por segmento y se calcularon clientes, ventas, ganancias y margen.
 
@@ -160,7 +160,7 @@ Los importes proceden del CSV Sample Superstore. La unidad monetaria no aparece 
 
 **Conclusión.** Conviene revisar costos y descuentos en los estados con pérdida.
 
-## Pregunta 12. Evolución anual por categoría (complementaria)
+## Pregunta 12. Categorías
 
 **Estrategia.** Se agregaron ventas y ganancias por categoría y año. `LAG()` comparó las ventas con el año previo de la misma categoría.
 
