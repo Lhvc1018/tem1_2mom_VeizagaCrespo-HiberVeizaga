@@ -9,7 +9,7 @@ from docx.shared import Inches, Pt
 
 
 root = Path(__file__).resolve().parent.parent
-output = root / "Informe_Superstore_Hiber_Veizaga_Crespo.docx"
+output = root / "EvidenciasExamen.docx"
 results = (root / "docs" / "resultados.md").read_text(encoding="utf-8")
 sections = re.split(r"(?=^## Pregunta \d+\.)", results, flags=re.M)[1:]
 assert len(sections) == 12
@@ -152,26 +152,25 @@ for number, section in enumerate(sections, 1):
 
 paragraph("Optimización y conclusiones generales", bold=True, keep=True, page_before=True)
 paragraph(
-    "La tabla analítica usa ORC y tipos DATE, INT y DOUBLE. Las agregaciones preceden a las "
-    "funciones de ventana. Particionar 9.994 filas por año o región crearía particiones pequeñas."
+    "Guardé los datos en ORC y usé tipos DATE, INT y DOUBLE. "
+    "Con 9.994 filas, no hizo falta dividir la tabla por año o región."
 )
 paragraph(
-    "La auditoría no detectó anomalías en las reglas comprobadas. West obtuvo la mayor "
-    "ganancia regional; Central, la menor."
+    "La revisión de calidad no encontró problemas según las reglas aplicadas. "
+    "West tuvo la mayor ganancia regional y Central la menor."
 )
 paragraph(
-    "Los descuentos superiores al 50 % coincidieron con pérdidas en 856 líneas. "
-    "Esta asociación descriptiva no demuestra causalidad."
+    "Las 856 líneas con descuento superior al 50 % dieron pérdida. "
+    "Eso no prueba que el descuento fuera la única causa."
 )
 paragraph(
-    "La segmentación identificó 199 clientes en riesgo. 414 productos concentran el 80 % "
-    "de las ventas y 340 concentran el 80 % de las ganancias positivas."
+    "Encontré 199 clientes en riesgo. 414 productos reúnen el 80 % "
+    "de las ventas y 340 reúnen el 80 % de las ganancias positivas."
 )
-paragraph("Acciones sugeridas", bold=True, before=8, keep=True)
-paragraph("Revisar la mezcla de productos y costos en Central.")
-paragraph("Evaluar límites de descuento por subcategoría.")
-paragraph("Priorizar campañas de retención para los clientes en riesgo.")
-paragraph("Revisar disponibilidad y rentabilidad de los productos líderes.")
+paragraph("Qué revisaría primero", bold=True, before=8, keep=True)
+paragraph("Los costos de Central y de los estados con pérdida.")
+paragraph("Los descuentos altos, especialmente en Binders.")
+paragraph("Los 199 clientes en riesgo y los productos que pierden dinero.")
 
 document.save(output)
 print(output)

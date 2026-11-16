@@ -29,7 +29,7 @@ cmd\consultas.cmd
 - Resultados y conclusiones: `docs/resultados.md`.
 - Evidencias de CMD: `evidencias/`.
 - Optimización: `docs/optimizacion.md`.
-- Informe Word: `Informe_Superstore_Hiber_Veizaga_Crespo.docx`.
+- Informe Word: `EvidenciasExamen.docx`.
 
 ## Conclusión
 
