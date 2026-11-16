@@ -1,0 +1,6 @@
+data/resultados/
+data/evidencia_sql/
+data/qa_docx/
+data/*.log
+__pycache__/
+*.pdf
