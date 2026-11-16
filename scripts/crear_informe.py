@@ -63,13 +63,25 @@ normal.paragraph_format.line_spacing = 1.15
 normal.paragraph_format.space_after = Pt(6)
 
 
-def paragraph(text="", *, bold=False, keep=False, before=0, after=6, page_before=False):
+def prose(text):
+    """Reduce la puntuación del texto sin modificar cifras ni direcciones."""
+    if "https://" in text:
+        return text
+    text = re.sub(r"(?<=\d)\.(?=\d)", "\ue000", text)
+    text = re.sub(r"(?<=\d),(?=\d)", "\ue001", text)
+    text = text.replace(". ", "  ").replace("; ", "  ")
+    text = text.replace(", ", " ").rstrip(".")
+    text = text.replace("\ue000", ".").replace("\ue001", ",")
+    return text
+
+
+def paragraph(text="", *, bold=False, keep=False, before=0, after=6, page_before=False, plain=True):
     item = document.add_paragraph(style="Normal")
     item.paragraph_format.space_before = Pt(before)
     item.paragraph_format.space_after = Pt(after)
     item.paragraph_format.keep_with_next = keep
     item.paragraph_format.page_break_before = page_before
-    run = item.add_run(text)
+    run = item.add_run(prose(text) if plain else text)
     run.bold = bold
     run.font.name = "Arial"
     run.font.size = Pt(12)
@@ -83,7 +95,7 @@ def labeled(label, value):
     first.bold = True
     first.font.name = "Arial"
     first.font.size = Pt(12)
-    second = item.add_run(value)
+    second = item.add_run(prose(value))
     second.font.name = "Arial"
     second.font.size = Pt(12)
 
@@ -91,7 +103,7 @@ def labeled(label, value):
 def code_block(sql):
     paragraph("Consulta HiveQL", bold=True, keep=True, before=4, after=3)
     for line in sql.splitlines():
-        item = paragraph(line or " ", after=0)
+        item = paragraph(line or " ", after=0, plain=False)
         item.paragraph_format.left_indent = Inches(0.15)
         item.paragraph_format.line_spacing = 1.0
     paragraph("", after=2)
@@ -131,7 +143,7 @@ for number, section in enumerate(sections, 1):
     if not evidence:
         raise ValueError(f"Sin evidencia para pregunta {number}")
 
-    paragraph(heading, bold=True, keep=True, page_before=True)
+    paragraph(heading.replace(". ", " "), bold=True, keep=True, page_before=True)
     labeled("Enunciado", enunciados[number - 1])
     labeled("Estrategia", strategy)
     code_block(sql)
